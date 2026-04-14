@@ -9,20 +9,17 @@ import java.util.List;
 
 /**
  * Controlador REST para gestionar las operaciones CRUD de la entidad Usuario.
- * Permite crear, consultar, actualizar y eliminar usuarios en la base de datos.
  */
+@CrossOrigin(origins = "http://localhost:3000") // Permite conexión con React
 @RestController
-@RequestMapping("/usuarios") // Ruta base para todos los endpoints
+@RequestMapping("/usuarios")
 public class UsuarioController {
 
-    // Inyección del repositorio para acceder a la base de datos
     @Autowired
     private UsuarioRepository usuarioRepository;
 
     /**
      * Obtener todos los usuarios
-     * Método: GET
-     * URL: http://localhost:8080/usuarios
      */
     @GetMapping
     public List<Usuario> listar() {
@@ -30,9 +27,7 @@ public class UsuarioController {
     }
 
     /**
-     * Buscar un usuario por su ID
-     * Método: GET
-     * URL: http://localhost:8080/usuarios/{id}
+     * Buscar usuario por ID
      */
     @GetMapping("/{id}")
     public Usuario buscarPorId(@PathVariable Integer id) {
@@ -40,9 +35,7 @@ public class UsuarioController {
     }
 
     /**
-     * Crear un nuevo usuario
-     * Método: POST
-     * URL: http://localhost:8080/usuarios
+     * Crear usuario (REGISTRO)
      */
     @PostMapping
     public Usuario guardar(@RequestBody Usuario usuario) {
@@ -50,20 +43,33 @@ public class UsuarioController {
     }
 
     /**
-     * Actualizar un usuario existente
-     * Método: PUT
-     * URL: http://localhost:8080/usuarios/{id}
+     * LOGIN DE USUARIO 🔐
+     */
+    @PostMapping("/login")
+    public String login(@RequestBody Usuario usuario) {
+
+        // Buscar usuario por email
+        Usuario user = usuarioRepository.findByCorreo(usuario.getCorreo());
+
+        // Validar credenciales
+        if (user != null && user.getContraseña().equals(usuario.getContraseña())) {
+            return "Autenticación satisfactoria";
+        } else {
+            return "Error en la autenticación";
+        }
+    }
+
+    /**
+     * Actualizar usuario
      */
     @PutMapping("/{id}")
     public Usuario actualizar(@PathVariable Integer id, @RequestBody Usuario usuario) {
-        usuario.setId_usuario(id); // Asigna el ID al usuario a actualizar
+        usuario.setId_usuario(id);
         return usuarioRepository.save(usuario);
     }
 
     /**
-     * Eliminar un usuario por su ID
-     * Método: DELETE
-     * URL: http://localhost:8080/usuarios/{id}
+     * Eliminar usuario
      */
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Integer id) {
